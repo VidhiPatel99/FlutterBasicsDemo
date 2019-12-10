@@ -4,6 +4,7 @@ import 'package:flutter_demo/login_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
 import 'package:flutter_demo/utils/constants/language_constants.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
+import 'package:flutter_demo/utils/validators/input_validator.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -14,12 +15,13 @@ class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
-  RegExp emailValidationRegex = RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
 
   String _name;
   String _email;
   String _password;
+  String _confirmPassword;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class _SignUpPageState extends State<SignUpPage> {
           prefixIcon: Icon(Icons.person),
         ),
         keyboardType: TextInputType.text,
-        validator: validateName,
+        validator: InputValidator.validateName,
         onSaved: (String val) {
           _name = val;
         },
@@ -50,7 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
           prefixIcon: Icon(Icons.email),
         ),
         keyboardType: TextInputType.emailAddress,
-        validator: validateEmail,
+        validator: InputValidator.validateEmail,
         onSaved: (String val) {
           _email = val;
         },
@@ -66,7 +68,8 @@ class _SignUpPageState extends State<SignUpPage> {
           hintText: LanguageConstants.password,
           prefixIcon: Icon(Icons.lock),
         ),
-        validator: validatePassword,
+        controller: _passwordController,
+        validator: InputValidator.validatePassword,
         onSaved: (String val) {
           _password = val;
         },
@@ -81,9 +84,13 @@ class _SignUpPageState extends State<SignUpPage> {
         decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
             hintText: LanguageConstants.confirmPassword,
             prefixIcon: Icon(Icons.lock)),
-        validator: validateConfirmPassword,
+        controller: _confirmPasswordController,
+        validator: (val) {
+          return InputValidator.validateConfirmPassword(
+              _passwordController.text, _confirmPasswordController.text);
+        },
         onSaved: (String val) {
-          _password = val;
+          _confirmPassword = val;
         },
       );
       return confirmPasswordField;
@@ -195,46 +202,6 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
-  }
-
-  String validateName(String value) {
-    if (value.length < 2) {
-      return 'Name must be more than 2 charater';
-    } else {
-      return null;
-    }
-  }
-
-  String validateEmail(String value) {
-    if (value.length > 0) {
-      if (!emailValidationRegex.hasMatch(value)) {
-        return 'Please enter valid email';
-      } else {
-        return null;
-      }
-    } else {
-      return 'Please enter email';
-    }
-  }
-
-  String validatePassword(String value) {
-    if (value.length < 6) {
-      return 'Password lenght must be 6 or greater';
-    } else {
-      return null;
-    }
-  }
-
-  String validateConfirmPassword(String value) {
-    if (value.length < 6) {
-      return 'Password lenght must be 6 or greater';
-    } else {
-      if (value != _password) {
-        return 'Password and confirm password must be same';
-      } else {
-        return null;
-      }
-    }
   }
 
   _validateInputs() {

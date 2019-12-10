@@ -4,6 +4,7 @@ import 'package:flutter_demo/signup_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
 import 'package:flutter_demo/utils/constants/language_constants.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
+import 'package:flutter_demo/utils/validators/input_validator.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,9 +14,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
-
-  RegExp emailValidationRegex = RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
 
   String _email;
   String _password;
@@ -27,26 +25,6 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _autoValidate = true;
       });
-    }
-  }
-
-  String validateEmail(String arg) {
-    if (arg.length > 0) {
-      if (!emailValidationRegex.hasMatch(arg)) {
-        return 'Please enter valid email';
-      } else {
-        return null;
-      }
-    } else {
-      return 'Please enter email';
-    }
-  }
-
-  String validatePassword(String password) {
-    if (password.length > 8) {
-      return null;
-    } else {
-      return 'Please enter valid password';
     }
   }
 
@@ -67,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
           prefixIcon: Icon(Icons.email),
         ),
         keyboardType: TextInputType.emailAddress,
-        validator: validateEmail,
+        validator: InputValidator.validateEmail,
         onSaved: (String val) {
           _email = val;
         },
@@ -83,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
           hintText: LanguageConstants.password,
           prefixIcon: Icon(Icons.lock),
         ),
-        validator: validatePassword,
+        validator: InputValidator.validatePassword,
         onSaved: (String val) {
           _password = val;
         },
