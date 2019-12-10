@@ -1,4 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/signup_screen.dart';
+import 'package:flutter_demo/utils/constants/color_constants.dart';
+import 'package:flutter_demo/utils/constants/language_constants.dart';
+import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -6,41 +11,82 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
 
-  _displaySnackBar(BuildContext buildContext) {
+  RegExp emailValidationRegex = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+
+  String _email;
+  String _password;
+
+  _validateInputs() {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+    } else {
+      setState(() {
+        _autoValidate = true;
+      });
+    }
+  }
+
+  String validateEmail(String arg) {
+    if (arg.length > 0) {
+      if (!emailValidationRegex.hasMatch(arg)) {
+        return 'Please enter valid email';
+      } else {
+        return null;
+      }
+    } else {
+      return 'Please enter email';
+    }
+  }
+
+  String validatePassword(String password) {
+    if (password.length > 8) {
+      return null;
+    } else {
+      return 'Please enter valid password';
+    }
+  }
+
+  _displaySnackBar(BuildContext buildContext, String textToDisplay) {
     Scaffold.of(buildContext).showSnackBar(SnackBar(
-      content: Text("Login clicked"),
+      content: Text(textToDisplay),
     ));
   }
 
   @override
   Widget build(BuildContext context) {
     _emailField() {
-      final emailField = TextField(
+      final emailField = TextFormField(
         obscureText: false,
-        style: style,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Email",
+        style: TextFromFieldTheme.textFieldTextStyle,
+        decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
+          hintText: LanguageConstants.email,
           prefixIcon: Icon(Icons.email),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
         ),
         keyboardType: TextInputType.emailAddress,
+        validator: validateEmail,
+        onSaved: (String val) {
+          _email = val;
+        },
       );
       return emailField;
     }
 
     _passwordField() {
-      final passwordField = TextField(
+      final passwordField = TextFormField(
         obscureText: true,
-        style: style,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Password",
+        style: TextFromFieldTheme.textFieldTextStyle,
+        decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
+          hintText: LanguageConstants.password,
           prefixIcon: Icon(Icons.lock),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
         ),
+        validator: validatePassword,
+        onSaved: (String val) {
+          _password = val;
+        },
       );
       return passwordField;
     }
@@ -49,15 +95,17 @@ class _LoginPageState extends State<LoginPage> {
       final login = Material(
         elevation: 5.0,
         borderRadius: BorderRadius.circular(10.0),
-        color: Color(0xff01A0C7),
+        color: ColorConstants.colorPrimary,
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          onPressed: () {},
+          onPressed: () {
+            _validateInputs();
+          },
           child: Text("Login",
               textAlign: TextAlign.center,
-              style: style.copyWith(
-                  color: Colors.white, fontWeight: FontWeight.bold)),
+              style: TextFromFieldTheme.textFieldTextStyle
+                  .copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       );
 
@@ -73,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
     final textSignUp = Text(
       "SignUp",
       style: TextStyle(
-          color: Colors.blueGrey,
+          color: ColorConstants.colorPrimary,
           fontWeight: FontWeight.bold,
           fontSize: 18,
           decoration: TextDecoration.underline),
@@ -82,9 +130,10 @@ class _LoginPageState extends State<LoginPage> {
     _signUpText(BuildContext context) {
       final textSignUpGesture = GestureDetector(
         onTap: () {
-          Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text("Sign Up clicked"),
-          ));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => SignUpPage()),
+              ModalRoute.withName("/login_screen"));
         },
         child: textSignUp,
       );
@@ -99,44 +148,42 @@ class _LoginPageState extends State<LoginPage> {
             color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(36.0),
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: 35.0,
-                  ),
-                  SizedBox(
-                    height: 155.0,
-                    child: Image.asset(
-                      "images/splash_logo.png",
+              child: Form(
+                key: _formKey,
+                autovalidate: _autoValidate,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 155.0,
+                      child: Image.asset(
+                        "images/splash_logo.png",
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 35.0,
-                  ),
-                  SizedBox(
-                    height: 55.0,
-                    child: _emailField(),
-                  ),
-                  SizedBox(
-                    height: 35.0,
-                  ),
-                  SizedBox(
-                    height: 55.0,
-                    child: _passwordField(),
-                  ),
-                  SizedBox(
-                    height: 35.0,
-                  ),
-                  _loginButton(context),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[text, _signUpText(context)],
-                  )
-                ],
+                    SizedBox(
+                      height: 35.0,
+                    ),
+                    _emailField(),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    _passwordField(),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    _loginButton(context),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[text, _signUpText(context)],
+                    )
+                  ],
+                ),
               ),
+//
             ),
           ),
         ),

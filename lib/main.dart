@@ -37,8 +37,8 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Future.delayed(
         const Duration(seconds: 3),
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => LoginPage())));
+        () => Navigator.pushAndRemoveUntil(
+            context, MaterialPageRoute(builder: (context) => LoginPage()),ModalRoute.withName("/main")));
   }
 
   @override
@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
           decoration: new BoxDecoration(
             image: new DecorationImage(
               image: new AssetImage("images/splash_logo.png"),
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
             ),
           ),
         )
