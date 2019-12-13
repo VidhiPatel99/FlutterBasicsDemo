@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/signup_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
 import 'package:flutter_demo/utils/constants/language_constants.dart';
+import 'package:flutter_demo/utils/models/user_model.dart';
+import 'package:flutter_demo/utils/preference/preference_manager.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
 import 'package:flutter_demo/utils/validators/input_validator.dart';
+
+import 'home_screen.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -17,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
 
   String _email;
   String _password;
+  PrefManager prefManager = PrefManager();
 
   _validateInputs() {
     if (_formKey.currentState.validate()) {
@@ -46,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         keyboardType: TextInputType.emailAddress,
         validator: InputValidator.validateEmail,
-        onSaved: (String val) {
+        onFieldSubmitted: (String val) {
           _email = val;
         },
       );
@@ -62,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
           prefixIcon: Icon(Icons.lock),
         ),
         validator: InputValidator.validatePassword,
-        onSaved: (String val) {
+        onFieldSubmitted: (String val) {
           _password = val;
         },
       );
@@ -77,8 +84,12 @@ class _LoginPageState extends State<LoginPage> {
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          onPressed: () {
+          onPressed: () async {
             _validateInputs();
+
+            String user = await prefManager.checkForUserExistence(_email);
+
+            navigateToNextScreen(user, context);
           },
           child: Text("Login",
               textAlign: TextAlign.center,
@@ -167,5 +178,40 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     ));
+  }
+
+  void navigateToNextScreen(String user, BuildContext context) {
+    if (user == null) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("No user found. Please sign up first"),
+        action: SnackBarAction(
+          label: "SignUp",
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => SignUpPage()),
+                ModalRoute.withName("/login_screen"));
+          },
+        ),
+      ));
+    } else {
+      User mUser = User.fromJson(json.decode(user));
+      if (mUser.password == _password) {
+        prefManager.setIsLoggedIn();
+        prefManager.setCurrentLoggedInUser(_email);
+
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                      _email,
+                    )),
+            ModalRoute.withName("/login_screen"));
+      } else {
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text("Please enter valid password"),
+        ));
+      }
+    }
   }
 }

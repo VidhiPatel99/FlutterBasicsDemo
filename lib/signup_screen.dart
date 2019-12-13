@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/home_screen.dart';
 import 'package:flutter_demo/login_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
 import 'package:flutter_demo/utils/constants/language_constants.dart';
+import 'package:flutter_demo/utils/models/user_model.dart';
+import 'package:flutter_demo/utils/preference/preference_manager.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
 import 'package:flutter_demo/utils/validators/input_validator.dart';
 
@@ -15,6 +18,10 @@ class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
+  PrefManager prefManager = PrefManager();
+
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
@@ -35,7 +42,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         keyboardType: TextInputType.text,
         validator: InputValidator.validateName,
-        onSaved: (String val) {
+        controller: _nameController,
+        onFieldSubmitted: (String val) {
           _name = val;
         },
       );
@@ -53,7 +61,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         keyboardType: TextInputType.emailAddress,
         validator: InputValidator.validateEmail,
-        onSaved: (String val) {
+        controller: _emailController,
+        onFieldSubmitted: (String val) {
           _email = val;
         },
       );
@@ -70,7 +79,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         controller: _passwordController,
         validator: InputValidator.validatePassword,
-        onSaved: (String val) {
+        onFieldSubmitted: (String val) {
           _password = val;
         },
       );
@@ -89,7 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
           return InputValidator.validateConfirmPassword(
               _passwordController.text, _confirmPasswordController.text);
         },
-        onSaved: (String val) {
+        onFieldSubmitted: (String val) {
           _confirmPassword = val;
         },
       );
@@ -104,8 +113,12 @@ class _SignUpPageState extends State<SignUpPage> {
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          onPressed: () {
+          onPressed: () async {
             _validateInputs();
+
+            String user = await prefManager.checkForUserExistence(_email);
+
+            navigateToNextScreen(user, context);
           },
           child: Text("Sign Up",
               textAlign: TextAlign.center,
@@ -139,9 +152,6 @@ class _SignUpPageState extends State<SignUpPage> {
               context,
               MaterialPageRoute(builder: (context) => LoginPage()),
               ModalRoute.withName("/signup_screen"));
-//          Scaffold.of(context).showSnackBar(SnackBar(
-//            content: Text("Sign Up clicked"),
-//          ));
         },
         child: textLogin,
       );
@@ -202,6 +212,42 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  Future<void> navigateToNextScreen(String user, BuildContext context) async {
+    if (user == null) {
+      User user = User();
+      user.name = _nameController.text;
+      user.email = _emailController.text;
+      user.password = _passwordController.text;
+
+      await prefManager.saveUser(_email, user);
+      print("email : $_email");
+
+      await prefManager.setIsLoggedIn();
+      await prefManager.setCurrentLoggedInUser(_email);
+
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePage(
+                    _email,
+                  )),
+          ModalRoute.withName("/signup_screen"));
+    } else {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("User already exists. Please login."),
+        action: SnackBarAction(
+          label: 'Login',
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                ModalRoute.withName("/signup_screen"));
+          },
+        ),
+      ));
+    }
   }
 
   _validateInputs() {
