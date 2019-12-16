@@ -14,9 +14,16 @@ class PrefManager {
     return json.decode(pref.getString(key));
   }
 
-  setIsLoggedIn() async {
-    final pref = await SharedPreferences.getInstance();
-    pref.setBool(AppConstants.IS_LOGGED_IN, true);
+  setIsLoggedIn([bool isLoggedIn]) async {
+    //[] is for default argument
+    if (isLoggedIn == null) {
+      //if null that means set true
+      final pref = await SharedPreferences.getInstance();
+      pref.setBool(AppConstants.IS_LOGGED_IN, true);
+    } else {
+      final pref = await SharedPreferences.getInstance();
+      pref.setBool(AppConstants.IS_LOGGED_IN, false);
+    }
   }
 
   Future getIsLoggedIn() async {
@@ -32,6 +39,11 @@ class PrefManager {
   getCurrentLoggedInUser() async {
     final pref = await SharedPreferences.getInstance();
     return pref.getString(AppConstants.CURRENT_USER_ID);
+  }
+
+  removeCurrentLoggedInUser() async {
+    final pref = await SharedPreferences.getInstance();
+    pref.remove(AppConstants.CURRENT_USER_ID);
   }
 
   Future checkForUserExistence(String email) async {

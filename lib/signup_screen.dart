@@ -116,7 +116,7 @@ class _SignUpPageState extends State<SignUpPage> {
           onPressed: () async {
             _validateInputs();
 
-            String user = await prefManager.checkForUserExistence(_email);
+            String user = await prefManager.checkForUserExistence(_emailController.text);
 
             navigateToNextScreen(user, context);
           },
@@ -221,17 +221,17 @@ class _SignUpPageState extends State<SignUpPage> {
       user.email = _emailController.text;
       user.password = _passwordController.text;
 
-      await prefManager.saveUser(_email, user);
-      print("email : $_email");
+      await prefManager.saveUser(_emailController.text, user);
+      print("email : $_emailController.text");
 
       await prefManager.setIsLoggedIn();
-      await prefManager.setCurrentLoggedInUser(_email);
+      await prefManager.setCurrentLoggedInUser(_emailController.text);
 
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
               builder: (context) => HomePage(
-                    _email,
+                _emailController.text,
                   )),
           ModalRoute.withName("/signup_screen"));
     } else {

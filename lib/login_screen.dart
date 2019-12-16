@@ -23,6 +23,10 @@ class _LoginPageState extends State<LoginPage> {
 
   String _email;
   String _password;
+
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
   PrefManager prefManager = PrefManager();
 
   _validateInputs() {
@@ -53,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         keyboardType: TextInputType.emailAddress,
         validator: InputValidator.validateEmail,
+        controller: _emailController,
         onFieldSubmitted: (String val) {
           _email = val;
         },
@@ -69,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
           prefixIcon: Icon(Icons.lock),
         ),
         validator: InputValidator.validatePassword,
+        controller: _passwordController,
         onFieldSubmitted: (String val) {
           _password = val;
         },
@@ -87,7 +93,8 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: () async {
             _validateInputs();
 
-            String user = await prefManager.checkForUserExistence(_email);
+            String user =
+                await prefManager.checkForUserExistence(_emailController.text);
 
             navigateToNextScreen(user, context);
           },
@@ -196,15 +203,15 @@ class _LoginPageState extends State<LoginPage> {
       ));
     } else {
       User mUser = User.fromJson(json.decode(user));
-      if (mUser.password == _password) {
+      if (mUser.password == _passwordController.text) {
         prefManager.setIsLoggedIn();
-        prefManager.setCurrentLoggedInUser(_email);
+        prefManager.setCurrentLoggedInUser(mUser.email);
 
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
                 builder: (context) => HomePage(
-                      _email,
+                      mUser.email,
                     )),
             ModalRoute.withName("/login_screen"));
       } else {
