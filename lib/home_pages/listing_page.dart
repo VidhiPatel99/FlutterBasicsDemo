@@ -60,6 +60,8 @@ class _ListingPageState extends State<ListingPage> {
                             children: <Widget>[
                               Text(
                                 snapshot.data[index].id.toString(),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w800, fontSize: 18),
                               ),
                               SizedBox(
                                 width: 15,
@@ -74,7 +76,7 @@ class _ListingPageState extends State<ListingPage> {
                                       textAlign: TextAlign.left,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w800,
-                                      fontSize: 18),
+                                          fontSize: 18),
                                     ),
                                     SizedBox(
                                       height: 5,
@@ -82,6 +84,9 @@ class _ListingPageState extends State<ListingPage> {
                                     Text(
                                       snapshot.data[index].body,
                                       textAlign: TextAlign.left,
+                                      maxLines: 4,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 16),
                                     ),
 //                              Text(snapshot.data[index].body,
 //                                  maxLines: 3, textAlign: TextAlign.left)
