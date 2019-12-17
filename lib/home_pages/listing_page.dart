@@ -72,13 +72,16 @@ class _ListingPageState extends State<ListingPage> {
                                     Text(
                                       snapshot.data[index].title,
                                       textAlign: TextAlign.left,
-                                      style:
-                                          TextStyle(fontWeight: FontWeight.w800),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                      fontSize: 18),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
                                     ),
                                     Text(
                                       snapshot.data[index].body,
                                       textAlign: TextAlign.left,
-
                                     ),
 //                              Text(snapshot.data[index].body,
 //                                  maxLines: 3, textAlign: TextAlign.left)
