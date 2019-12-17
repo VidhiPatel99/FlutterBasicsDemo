@@ -24,14 +24,18 @@ class _LoginPageState extends State<LoginPage> {
   String _email;
   String _password;
 
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+//  TextEditingController _emailController = TextEditingController();
+//  TextEditingController _passwordController = TextEditingController();
 
   PrefManager prefManager = PrefManager();
 
-  _validateInputs() {
+  _validateInputs(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+
+      String user = await prefManager.checkForUserExistence(_email);
+
+      navigateToNextScreen(user, context);
     } else {
       setState(() {
         _autoValidate = true;
@@ -57,8 +61,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         keyboardType: TextInputType.emailAddress,
         validator: InputValidator.validateEmail,
-        controller: _emailController,
-        onFieldSubmitted: (String val) {
+        onChanged: (String val) {
           _email = val;
         },
       );
@@ -74,8 +77,7 @@ class _LoginPageState extends State<LoginPage> {
           prefixIcon: Icon(Icons.lock),
         ),
         validator: InputValidator.validatePassword,
-        controller: _passwordController,
-        onFieldSubmitted: (String val) {
+        onChanged: (String val) {
           _password = val;
         },
       );
@@ -91,12 +93,7 @@ class _LoginPageState extends State<LoginPage> {
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           onPressed: () async {
-            _validateInputs();
-
-            String user =
-                await prefManager.checkForUserExistence(_emailController.text);
-
-            navigateToNextScreen(user, context);
+            _validateInputs(context);
           },
           child: Text("Login",
               textAlign: TextAlign.center,
@@ -203,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
       ));
     } else {
       User mUser = User.fromJson(json.decode(user));
-      if (mUser.password == _passwordController.text) {
+      if (mUser.password == _password) {
         prefManager.setIsLoggedIn();
         prefManager.setCurrentLoggedInUser(mUser.email);
 

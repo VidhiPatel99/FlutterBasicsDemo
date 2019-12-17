@@ -27,11 +27,15 @@ mixin InputValidator {
 
   static String validateConfirmPassword(
       String password, String confirmPassword) {
-    if (confirmPassword.length > 0) {
-      if (password != confirmPassword) {
-        return 'Password and confirm password must be same';
+    if (confirmPassword != null) {
+      if (confirmPassword.length > 0) {
+        if (password != confirmPassword) {
+          return 'Password and confirm password must be same';
+        } else {
+          return null;
+        }
       } else {
-        return null;
+        return 'Please enter confirm password';
       }
     } else {
       return 'Please enter confirm password';

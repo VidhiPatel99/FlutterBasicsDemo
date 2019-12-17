@@ -20,10 +20,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   PrefManager prefManager = PrefManager();
 
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
+//  TextEditingController _nameController = TextEditingController();
+//  TextEditingController _emailController = TextEditingController();
+//  TextEditingController _passwordController = TextEditingController();
+//  TextEditingController _confirmPasswordController = TextEditingController();
 
   String _name;
   String _email;
@@ -42,8 +42,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         keyboardType: TextInputType.text,
         validator: InputValidator.validateName,
-        controller: _nameController,
-        onFieldSubmitted: (String val) {
+        onChanged: (String val) {
+          print('onFieldSubmitted $val');
           _name = val;
         },
       );
@@ -61,8 +61,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         keyboardType: TextInputType.emailAddress,
         validator: InputValidator.validateEmail,
-        controller: _emailController,
-        onFieldSubmitted: (String val) {
+        onChanged: (String val) {
+          print('onFieldSubmitted $val');
           _email = val;
         },
       );
@@ -77,9 +77,8 @@ class _SignUpPageState extends State<SignUpPage> {
           hintText: LanguageConstants.password,
           prefixIcon: Icon(Icons.lock),
         ),
-        controller: _passwordController,
         validator: InputValidator.validatePassword,
-        onFieldSubmitted: (String val) {
+        onChanged: (String val) {
           _password = val;
         },
       );
@@ -93,12 +92,8 @@ class _SignUpPageState extends State<SignUpPage> {
         decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
             hintText: LanguageConstants.confirmPassword,
             prefixIcon: Icon(Icons.lock)),
-        controller: _confirmPasswordController,
-        validator: (val) {
-          return InputValidator.validateConfirmPassword(
-              _passwordController.text, _confirmPasswordController.text);
-        },
-        onFieldSubmitted: (String val) {
+        validator: (val) => InputValidator.validateConfirmPassword(_password, _confirmPassword),
+        onChanged: (String val) {
           _confirmPassword = val;
         },
       );
@@ -114,11 +109,7 @@ class _SignUpPageState extends State<SignUpPage> {
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           onPressed: () async {
-            _validateInputs();
-
-            String user = await prefManager.checkForUserExistence(_emailController.text);
-
-            navigateToNextScreen(user, context);
+            _validateInputs(context);
           },
           child: Text("Sign Up",
               textAlign: TextAlign.center,
@@ -217,21 +208,21 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> navigateToNextScreen(String user, BuildContext context) async {
     if (user == null) {
       User user = User();
-      user.name = _nameController.text;
-      user.email = _emailController.text;
-      user.password = _passwordController.text;
+      user.name = _name;
+      user.email = _email;
+      user.password =_password;
 
-      await prefManager.saveUser(_emailController.text, user);
-      print("email : $_emailController.text");
+      await prefManager.saveUser(_email, user);
+      print("email : $_email");
 
       await prefManager.setIsLoggedIn();
-      await prefManager.setCurrentLoggedInUser(_emailController.text);
+      await prefManager.setCurrentLoggedInUser(_email);
 
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
               builder: (context) => HomePage(
-                _emailController.text,
+                _email,
                   )),
           ModalRoute.withName("/signup_screen"));
     } else {
@@ -250,9 +241,15 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  _validateInputs() {
+  _validateInputs(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+
+      String user =
+          await prefManager.checkForUserExistence(_email);
+
+      navigateToNextScreen(user, context);
+
     } else {
       setState(() {
         _autoValidate = true;
