@@ -55,7 +55,7 @@ class _ListingPageState extends State<ListingPage> {
                         margin: new EdgeInsets.symmetric(
                             horizontal: 8.0, vertical: 8.0),
                         child: Container(
-                          padding: EdgeInsets.all(10.0),
+                          padding: EdgeInsets.symmetric(horizontal: 16.0,vertical: 8),
                           child: Row(
                             children: <Widget>[
                               Text(
@@ -84,23 +84,16 @@ class _ListingPageState extends State<ListingPage> {
                                     Text(
                                       snapshot.data[index].body,
                                       textAlign: TextAlign.left,
-                                      maxLines: 4,
+                                      maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(fontSize: 16),
                                     ),
-//                              Text(snapshot.data[index].body,
-//                                  maxLines: 3, textAlign: TextAlign.left)
                                   ],
                                 ),
                               )
                             ],
                           ),
                         ),
-//                      child: ListTile(
-//                        leading: Text(snapshot.data[index].id.toString()),
-//                        title: Text(snapshot.data[index].title),
-//                        subtitle: Text(snapshot.data[index].body)
-//                      ),
                       );
                     },
                   );
