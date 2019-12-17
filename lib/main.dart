@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/home_screen.dart';
 import 'package:flutter_demo/login_screen.dart';
-import 'package:flutter_demo/utils/models/user_model.dart';
 import 'package:flutter_demo/utils/preference/preference_manager.dart';
 
 void main() => runApp(MyApp());

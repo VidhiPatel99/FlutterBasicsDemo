@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/home_pages/listing_page.dart';
 import 'package:flutter_demo/login_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
-import 'package:flutter_demo/utils/models/user_model.dart';
+import 'package:flutter_demo/models/user_model.dart';
 import 'package:flutter_demo/utils/preference/preference_manager.dart';
 import 'package:flutter_demo/utils/theme/GeneralStyle.dart';
 
@@ -15,9 +16,15 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+@override
+State<StatefulWidget> createState() {
+  return new _HomePageState();
+}
+
 class _HomePageState extends State<HomePage> {
   User currentUser = User();
   PrefManager prefManager = PrefManager();
+  int _selectedDrawerIndex = 0;
 
   Future<User> loadSharedPrefs() async {
     try {
@@ -48,29 +55,7 @@ class _HomePageState extends State<HomePage> {
         title: Text('Home'),
         backgroundColor: ColorConstants.colorPrimary,
       ),
-      body: Container(
-        padding: EdgeInsets.all(36.0),
-        child: Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text('Wel come '),
-                    Text(currentUser.name ?? ""),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Text('Email :  '),
-                    Text(currentUser.email ?? ""),
-                  ],
-                ),
-              ],
-            )),
-      ),
+      body: _getDrawerItemWidget(_selectedDrawerIndex),
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
@@ -93,7 +78,9 @@ class _HomePageState extends State<HomePage> {
                 'Home',
                 style: GeneralStyle.navDrawerItemStyle,
               ),
-              onTap: () {},
+              onTap: () {
+                _onSelectItem(0);
+              },
             ),
             ListTile(
               leading: Icon(Icons.person),
@@ -101,7 +88,9 @@ class _HomePageState extends State<HomePage> {
                 'Profile',
                 style: GeneralStyle.navDrawerItemStyle,
               ),
-              onTap: () {},
+              onTap: () {
+                _onSelectItem(1);
+              },
             ),
             ListTile(
               leading: Icon(Icons.power_settings_new),
@@ -110,6 +99,7 @@ class _HomePageState extends State<HomePage> {
                 style: GeneralStyle.navDrawerItemStyle,
               ),
               onTap: () {
+                Navigator.pop(context);
                 logout();
               },
             ),
@@ -127,5 +117,25 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
         ModalRoute.withName("/home_screen"));
+  }
+
+  _onSelectItem(int index) {
+    setState(() => _selectedDrawerIndex = index);
+    Navigator.of(context).pop(); // close the drawer
+  }
+
+  _getDrawerItemWidget(int pos) {
+    switch (pos) {
+      case 0:
+        return new ListingPage();
+      case 1:
+        return new Text(
+          "Profile",
+          textAlign: TextAlign.center,
+        );
+
+      default:
+        return new Text("Error");
+    }
   }
 }

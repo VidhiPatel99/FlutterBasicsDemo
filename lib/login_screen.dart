@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/signup_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
 import 'package:flutter_demo/utils/constants/language_constants.dart';
-import 'package:flutter_demo/utils/models/user_model.dart';
+import 'package:flutter_demo/models/user_model.dart';
 import 'package:flutter_demo/utils/preference/preference_manager.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
 import 'package:flutter_demo/utils/validators/input_validator.dart';
