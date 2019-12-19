@@ -48,50 +48,68 @@ class _ListingPageState extends State<ListingPage> {
                   return ListView.builder(
                     itemCount: snapshot.data.length,
                     itemBuilder: (BuildContext ctxt, int index) {
-                      return Card(
-                        elevation: 8.0,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        margin: new EdgeInsets.symmetric(
-                            horizontal: 8.0, vertical: 8.0),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0,vertical: 8),
-                          child: Row(
-                            children: <Widget>[
-                              Text(
-                                snapshot.data[index].id.toString(),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w800, fontSize: 18),
-                              ),
-                              SizedBox(
-                                width: 15,
-                              ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      snapshot.data[index].title,
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 18),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      snapshot.data[index].body,
-                                      textAlign: TextAlign.left,
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ],
+                      return Dismissible(
+                        key: Key(snapshot.data[index].id.toString()),
+                        background: Container(color: Colors.red),
+                        direction: DismissDirection.horizontal,
+                        onDismissed: (direction) {
+                          setState(() {
+                            snapshot.data.removeAt(index);
+                          });
+
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text('${snapshot.data[index].id} item deleted'),
+                          ));
+                        },
+                        child: Card(
+                          elevation: 8.0,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6)),
+                          margin: new EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 8.0),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Row(
+                              children: <Widget>[
+                                Text(
+                                  snapshot.data[index].id.toString(),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18),
                                 ),
-                              )
-                            ],
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        snapshot.data[index].title,
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 18),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        snapshot.data[index].body,
+                                        textAlign: TextAlign.left,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+//                              )
+                              ],
+                            ),
                           ),
                         ),
                       );
