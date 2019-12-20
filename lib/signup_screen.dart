@@ -9,6 +9,7 @@ import 'package:flutter_demo/models/user_model.dart';
 import 'package:flutter_demo/utils/preference/preference_manager.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
 import 'package:flutter_demo/utils/validators/input_validator.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker_modern/image_picker_modern.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -26,6 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
     setState(() {
       _image = image;
+      _profilePic = PrefManager.base64String(_image.readAsBytesSync());
     });
   }
 
@@ -34,6 +36,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String _email;
   String _password;
   String _confirmPassword;
+  String _profilePic;
 
   @override
   Widget build(BuildContext context) {
@@ -169,27 +172,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      GestureDetector(
-                        onTap: getImage,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blueGrey,
-                            shape: BoxShape.circle,
-                            border:
-                                Border.all(color: Colors.black26, width: 2.0),
-                          ),
-                          height: 155.0,
-                          width: 155.0,
-                          child: _image == null
-                              ? Icon(Icons.add_a_photo)
-                              : ClipRRect(
-                                  borderRadius: new BorderRadius.circular(77.5),
-                                  child: Image.file(
-                                    _image,
-                                    fit: BoxFit.fill,
-                                  )),
-                        ),
-                      ),
+                      profilePicField(),
                       SizedBox(
                         height: 20.0,
                       ),
@@ -226,12 +209,36 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  GestureDetector profilePicField() {
+    return GestureDetector(
+      onTap: getImage,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.blueGrey,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black26, width: 2.0),
+        ),
+        height: 155.0,
+        width: 155.0,
+        child: _image == null
+            ? Icon(Icons.add_a_photo)
+            : ClipRRect(
+                borderRadius: new BorderRadius.circular(77.5),
+                child: Image.file(
+                  _image,
+                  fit: BoxFit.fill,
+                )),
+      ),
+    );
+  }
+
   Future<void> navigateToNextScreen(String user, BuildContext context) async {
     if (user == null) {
       User user = User();
       user.name = _name;
       user.email = _email;
       user.password = _password;
+      user.profilePic = _profilePic;
 
       await prefManager.saveUser(_email, user);
       print("email : $_email");
@@ -266,9 +273,16 @@ class _SignUpPageState extends State<SignUpPage> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
-      String user = await prefManager.checkForUserExistence(_email);
-
-      navigateToNextScreen(user, context);
+      if (_image == null) {
+        Fluttertoast.showToast(
+            msg: 'Please select profile pic',
+            backgroundColor: Colors.red,
+            gravity: ToastGravity.BOTTOM,
+            toastLength: Toast.LENGTH_SHORT);
+      } else {
+        String user = await prefManager.checkForUserExistence(_email);
+        navigateToNextScreen(user, context);
+      }
     } else {
       setState(() {
         _autoValidate = true;

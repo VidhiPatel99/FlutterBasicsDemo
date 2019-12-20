@@ -71,6 +71,15 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               decoration: BoxDecoration(color: ColorConstants.colorPrimary),
+              currentAccountPicture: Container(
+                height: 100,
+                width: 100,
+                child: ClipRRect(
+                  borderRadius: new BorderRadius.circular(50),
+                  child:
+                      PrefManager.imageFromBase64String(currentUser.profilePic),
+                ),
+              ),
             ),
             ListTile(
               leading: Icon(Icons.home),
@@ -100,12 +109,40 @@ class _HomePageState extends State<HomePage> {
               ),
               onTap: () {
                 Navigator.pop(context);
-                logout();
+                _asyncConfirmDialog(context);
               },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future _asyncConfirmDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false, // user must tap button for close dialog!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: <Widget>[
+            FlatButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                logout();
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
     );
   }
 

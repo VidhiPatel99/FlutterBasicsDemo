@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:flutter_demo/utils/constants/app_constants.dart';
 import 'package:flutter_demo/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,5 +56,16 @@ class PrefManager {
     } else {
       return user;
     }
+  }
+
+  static Image imageFromBase64String(String base64String) {
+    return Image.memory(
+      base64Decode(base64String),
+      fit: BoxFit.fill,
+    );
+  }
+
+  static String base64String(Uint8List data) {
+    return base64Encode(data);
   }
 }
