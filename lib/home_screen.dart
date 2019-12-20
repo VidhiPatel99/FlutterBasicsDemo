@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
   Future _asyncConfirmDialog(BuildContext context) async {
     return showDialog(
       context: context,
-      barrierDismissible: false, // user must tap button for close dialog!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Logout'),
