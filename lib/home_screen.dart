@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/home_pages/listing_page.dart';
+import 'package:flutter_demo/home_pages/profile_page.dart';
 import 'package:flutter_demo/login_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
 import 'package:flutter_demo/models/user_model.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   User currentUser = User();
   PrefManager prefManager = PrefManager();
   int _selectedDrawerIndex = 0;
+  String _pageTitle = "Home";
 
   Future<User> loadSharedPrefs() async {
     try {
@@ -52,7 +54,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text(_pageTitle),
         backgroundColor: ColorConstants.colorPrimary,
       ),
       body: _getDrawerItemWidget(_selectedDrawerIndex),
@@ -77,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                 child: ClipRRect(
                   borderRadius: new BorderRadius.circular(50),
                   child:
-                      PrefManager.imageFromBase64String(currentUser.profilePic),
+                      PrefManager.imageFromBase64String(currentUser.profilePic=="" ? "" : currentUser.profilePic),
                 ),
               ),
             ),
@@ -157,7 +159,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onSelectItem(int index) {
-    setState(() => _selectedDrawerIndex = index);
+    setState(() {
+      _selectedDrawerIndex = index;
+
+      switch (index) {
+        case 0:
+          _pageTitle = "Home";
+          break;
+
+        case 1:
+          _pageTitle = "Profile";
+          break;
+      }
+    });
     Navigator.of(context).pop(); // close the drawer
   }
 
@@ -166,10 +180,7 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return new ListingPage();
       case 1:
-        return new Text(
-          "Profile",
-          textAlign: TextAlign.center,
-        );
+        return new ProfilePage(currentUser.email);
 
       default:
         return new Text("Error");
