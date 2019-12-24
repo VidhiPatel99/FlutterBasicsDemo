@@ -1,6 +1,11 @@
 import 'dart:io';
+import 'package:country_pickers/country.dart';
+import 'package:country_pickers/country_picker_dialog.dart';
+import 'package:country_pickers/country_pickers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_demo/home_screen.dart';
 import 'package:flutter_demo/login_screen.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
@@ -22,6 +27,8 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _autoValidate = false;
   File _image;
 
+  String _selectedDialogCountry = '91';
+
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -36,6 +43,9 @@ class _SignUpPageState extends State<SignUpPage> {
   String _email;
   String _password;
   String _confirmPassword;
+  String _city;
+  String _phoneNumber;
+  String _gender = "Female";
   String _profilePic;
 
   @override
@@ -49,7 +59,7 @@ class _SignUpPageState extends State<SignUpPage> {
           prefixIcon: Icon(Icons.person),
         ),
         keyboardType: TextInputType.text,
-        validator: InputValidator.validateName,
+        validator: (val) => InputValidator.validateString(val, 'name'),
         onChanged: (String val) {
           print('onFieldSubmitted $val');
           _name = val;
@@ -109,14 +119,27 @@ class _SignUpPageState extends State<SignUpPage> {
       return confirmPasswordField;
     }
 
+    _cityField() {
+      final confirmPasswordField = TextFormField(
+        style: TextFromFieldTheme.textFieldTextStyle,
+        decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
+            hintText: LanguageConstants.city,
+            prefixIcon: Icon(Icons.location_city)),
+        validator: (val) => InputValidator.validateString(val, 'city'),
+        onChanged: (String val) {
+          _city = val;
+        },
+      );
+      return confirmPasswordField;
+    }
+
     _signUpButton(BuildContext context) {
       final login = Material(
         elevation: 5.0,
         borderRadius: BorderRadius.circular(10.0),
         color: ColorConstants.colorPrimary,
         child: MaterialButton(
-          minWidth: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          padding: EdgeInsets.fromLTRB(40.0, 15.0, 40.0, 15.0),
           onPressed: () async {
             _validateInputs(context);
           },
@@ -192,6 +215,18 @@ class _SignUpPageState extends State<SignUpPage> {
                       SizedBox(
                         height: 20.0,
                       ),
+                      _cityField(),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      _countryField(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      _genderField(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
                       _signUpButton(context),
                       SizedBox(
                         height: 10.0,
@@ -205,6 +240,73 @@ class _SignUpPageState extends State<SignUpPage> {
                 )),
           ),
         ),
+      ),
+    );
+  }
+
+  Row _genderField() {
+    return Row(
+      children: <Widget>[
+        Text(
+          'Gender: ',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        Radio(
+          value: 'Female',
+          groupValue: _gender,
+          onChanged: _handleRadioValueChange,
+        ),
+        Text('Female'),
+        Radio(
+          value: 'Male',
+          groupValue: _gender,
+          onChanged: _handleRadioValueChange,
+        ),
+        Text('Male'),
+      ],
+    );
+  }
+
+  _countryField() {
+    return IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          Container(
+            color: Colors.black26,
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            child: GestureDetector(
+                onTap: () {
+                  _openCountryPickerDialog();
+                },
+                child: Center(
+                  child: Text(
+                    '+$_selectedDialogCountry',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, color: Colors.black87),
+                  ),
+                )),
+          ),
+          SizedBox(
+            width: 10.0,
+          ),
+          Flexible(
+            child: TextFormField(
+              maxLength: 10,
+              obscureText: false,
+              style: TextFromFieldTheme.textFieldTextStyle,
+              decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
+                  hintText: LanguageConstants.phone,
+                  prefixIcon: Icon(Icons.phone),
+                  counterText: ""),
+              keyboardType: TextInputType.number,
+              validator: (val) => InputValidator.validateString(val, 'number'),
+              onChanged: (String val) {
+                print('onFieldSubmitted $val');
+                _phoneNumber = val;
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -239,6 +341,10 @@ class _SignUpPageState extends State<SignUpPage> {
       user.email = _email;
       user.password = _password;
       user.profilePic = _profilePic;
+      user.city = _city;
+      user.countryCode = _selectedDialogCountry;
+      user.phoneNumber = _phoneNumber;
+      user.gender = _gender;
 
       await prefManager.saveUser(_email, user);
       print("email : $_email");
@@ -269,6 +375,21 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  void _openCountryPickerDialog() => showDialog(
+        context: context,
+        builder: (context) => Theme(
+            data: Theme.of(context).copyWith(primaryColor: Colors.lightBlue),
+            child: CountryPickerDialog(
+                titlePadding: EdgeInsets.all(8.0),
+                searchCursorColor: Colors.lightBlue,
+                searchInputDecoration: InputDecoration(hintText: 'Search...'),
+                isSearchable: true,
+                title: Text('Select your phone code'),
+                onValuePicked: (Country country) =>
+                    setState(() => _selectedDialogCountry = country.phoneCode),
+                itemBuilder: _buildCountryCodeDialogItem)),
+      );
+
   _validateInputs(BuildContext context) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
@@ -288,5 +409,28 @@ class _SignUpPageState extends State<SignUpPage> {
         _autoValidate = true;
       });
     }
+  }
+
+  Widget _buildCountryCodeDialogItem(Country country) {
+    return Row(
+      children: <Widget>[
+        CountryPickerUtils.getDefaultFlagImage(country),
+        SizedBox(
+          width: 10,
+        ),
+        Text('+${country.phoneCode}'),
+        SizedBox(
+          width: 10,
+        ),
+        Expanded(child: Text('(${country.name})')),
+      ],
+    );
+  }
+
+  void _handleRadioValueChange(String value) {
+    setState(() {
+      _gender = value;
+      print(_gender);
+    });
   }
 }

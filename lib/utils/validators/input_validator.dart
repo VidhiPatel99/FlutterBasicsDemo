@@ -42,15 +42,11 @@ mixin InputValidator {
     }
   }
 
-  static String validateName(String value) {
+  static String validateString(String value, String errorMessage) {
     if (value.length > 0) {
-      if (value.length < 2) {
-        return 'Name must be more than 2 charater';
-      } else {
-        return null;
-      }
+      return null;
     } else {
-      return 'Please enter name';
+      return 'Please enter $errorMessage';
     }
   }
 }

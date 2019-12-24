@@ -90,8 +90,7 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(10.0),
         color: ColorConstants.colorPrimary,
         child: MaterialButton(
-          minWidth: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          padding: EdgeInsets.fromLTRB(40.0, 15.0, 40.0, 15.0),
           onPressed: () async {
             _validateInputs(context);
           },

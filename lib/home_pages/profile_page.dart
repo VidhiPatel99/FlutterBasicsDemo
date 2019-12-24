@@ -140,7 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
         prefixIcon: Icon(Icons.person),
       ),
       keyboardType: TextInputType.text,
-      validator: InputValidator.validateName,
+      validator: (val) => InputValidator.validateString(val, 'name'),
       controller: _nameController,
       onChanged: (String val) {
         print('onFieldSubmitted $val');
