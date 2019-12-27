@@ -49,4 +49,16 @@ mixin InputValidator {
       return 'Please enter $errorMessage';
     }
   }
+
+  static String validatePhoneNumber(String value) {
+    if (value.length > 0) {
+      if (value.length == 10) {
+        return null;
+      } else {
+        return 'Please enter valid phone number';
+      }
+    } else {
+      return 'Please enter phone number';
+    }
+  }
 }

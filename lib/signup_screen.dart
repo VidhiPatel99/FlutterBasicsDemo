@@ -27,7 +27,6 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _autoValidate = false;
   File _image;
 
-  String _selectedDialogCountry = '91';
 
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -47,6 +46,8 @@ class _SignUpPageState extends State<SignUpPage> {
   String _phoneNumber;
   String _gender = "Female";
   String _profilePic;
+  String _selectedDialogCountry = '91';
+
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +300,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   prefixIcon: Icon(Icons.phone),
                   counterText: ""),
               keyboardType: TextInputType.number,
-              validator: (val) => InputValidator.validateString(val, 'number'),
+              validator: InputValidator.validatePhoneNumber,
               onChanged: (String val) {
                 print('onFieldSubmitted $val');
                 _phoneNumber = val;

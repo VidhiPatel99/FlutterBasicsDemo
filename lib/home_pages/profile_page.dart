@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:country_pickers/country.dart';
+import 'package:country_pickers/country_picker_dialog.dart';
+import 'package:country_pickers/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/models/user_model.dart';
 import 'package:flutter_demo/utils/constants/color_constants.dart';
@@ -27,10 +30,16 @@ class _ProfilePageState extends State<ProfilePage> {
   PrefManager prefManager = PrefManager();
   String _name;
   String _profilePic;
+  String _city;
+  String _phoneNumber;
+  String _gender;
+  String _countryCode;
   File _image;
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
+  TextEditingController _cityController = TextEditingController();
+  TextEditingController _phoneNumberController = TextEditingController();
 
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -58,11 +67,19 @@ class _ProfilePageState extends State<ProfilePage> {
         print('Vidhi : In InitState');
         currentUser = val;
 
+        //set text to controller to set text after async call
         _nameController.text = currentUser.name;
         _emailController.text = currentUser.email;
+        _cityController.text = currentUser.city;
+        _phoneNumberController.text = currentUser.phoneNumber;
 
+        //set current user details to local variables
         _name = currentUser.name;
         _profilePic = currentUser.profilePic;
+        _city = currentUser.city;
+        _phoneNumber = currentUser.phoneNumber;
+        _gender = currentUser.gender;
+        _countryCode = currentUser.countryCode;
       });
     });
   }
@@ -91,6 +108,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   height: 20.0,
                 ),
                 _emailField(),
+                SizedBox(
+                  height: 20.0,
+                ),
+                _cityField(),
+                SizedBox(
+                  height: 20.0,
+                ),
+                _countryField(),
+                SizedBox(
+                  height: 20.0,
+                ),
+                _genderField(),
                 SizedBox(
                   height: 30.0,
                 ),
@@ -149,6 +178,127 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  _cityField() {
+    final confirmPasswordField = TextFormField(
+      style: TextFromFieldTheme.textFieldTextStyle,
+      decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
+          hintText: LanguageConstants.city,
+          prefixIcon: Icon(Icons.location_city)),
+      validator: (val) => InputValidator.validateString(val, 'city'),
+      controller: _cityController,
+      onChanged: (String val) {
+        _city = val;
+      },
+    );
+    return confirmPasswordField;
+  }
+
+  _countryField() {
+    return IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          Container(
+            color: Colors.black26,
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            child: GestureDetector(
+                onTap: () {
+                  _openCountryPickerDialog();
+                },
+                child: Center(
+                  child: Text(
+                    '+$_countryCode',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, color: Colors.black87),
+                  ),
+                )),
+          ),
+          SizedBox(
+            width: 10.0,
+          ),
+          Flexible(
+            child: TextFormField(
+              maxLength: 10,
+              obscureText: false,
+              style: TextFromFieldTheme.textFieldTextStyle,
+              decoration: TextFromFieldTheme.textFieldInputDecoration.copyWith(
+                  hintText: LanguageConstants.phone,
+                  prefixIcon: Icon(Icons.phone),
+                  counterText: ""),
+              keyboardType: TextInputType.number,
+              validator: InputValidator.validatePhoneNumber,
+              controller: _phoneNumberController,
+              onChanged: (String val) {
+                print('onFieldSubmitted $val');
+                _phoneNumber = val;
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openCountryPickerDialog() => showDialog(
+        context: context,
+        builder: (context) => Theme(
+            data: Theme.of(context).copyWith(primaryColor: Colors.lightBlue),
+            child: CountryPickerDialog(
+                titlePadding: EdgeInsets.all(8.0),
+                searchCursorColor: Colors.lightBlue,
+                searchInputDecoration: InputDecoration(hintText: 'Search...'),
+                isSearchable: true,
+                title: Text('Select your phone code'),
+                onValuePicked: (Country country) =>
+                    setState(() => _countryCode = country.phoneCode),
+                itemBuilder: _buildCountryCodeDialogItem)),
+      );
+
+  Widget _buildCountryCodeDialogItem(Country country) {
+    return Row(
+      children: <Widget>[
+        CountryPickerUtils.getDefaultFlagImage(country),
+        SizedBox(
+          width: 10,
+        ),
+        Text('+${country.phoneCode}'),
+        SizedBox(
+          width: 10,
+        ),
+        Expanded(child: Text('(${country.name})')),
+      ],
+    );
+  }
+
+  Row _genderField() {
+    return Row(
+      children: <Widget>[
+        Text(
+          'Gender: ',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        Radio(
+          value: 'Female',
+          groupValue: _gender,
+          onChanged: _handleRadioValueChange,
+        ),
+        Text('Female'),
+        Radio(
+          value: 'Male',
+          groupValue: _gender,
+          onChanged: _handleRadioValueChange,
+        ),
+        Text('Male'),
+      ],
+    );
+  }
+
+  void _handleRadioValueChange(String value) {
+    setState(() {
+      _gender = value;
+      print(_gender);
+    });
+  }
+
   _signUpButton(BuildContext context) {
     final login = Material(
       elevation: 5.0,
@@ -175,6 +325,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
       currentUser.name = _name;
       currentUser.profilePic = _profilePic;
+      currentUser.gender = _gender;
+      currentUser.countryCode = _countryCode;
+      currentUser.city = _city;
+      currentUser.phoneNumber = _phoneNumber;
 
       updateUser().then((val) {
         Fluttertoast.showToast(
