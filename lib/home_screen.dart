@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   PrefManager prefManager = PrefManager();
   int _selectedDrawerIndex = 0;
   String _pageTitle = "Home";
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   Future<User> loadSharedPrefs() async {
     try {
@@ -53,7 +54,21 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
+        leading: GestureDetector(
+          child: Icon(Icons.menu),
+          onTap: () {
+            _scaffoldKey.currentState.openDrawer();
+
+            //get latest User object to update user details on drawer when come from update profile screen
+            loadSharedPrefs().then((User val) {
+              setState(() {
+                currentUser = val;
+              });
+            });
+          },
+        ),
         title: Text(_pageTitle),
         backgroundColor: ColorConstants.colorPrimary,
       ),
@@ -78,8 +93,10 @@ class _HomePageState extends State<HomePage> {
                 width: 100,
                 child: ClipRRect(
                   borderRadius: new BorderRadius.circular(50),
-                  child:
-                      PrefManager.imageFromBase64String(currentUser.profilePic=="" ? "" : currentUser.profilePic),
+                  child: PrefManager.imageFromBase64String(
+                      currentUser.profilePic == ""
+                          ? ""
+                          : currentUser.profilePic),
                 ),
               ),
             ),

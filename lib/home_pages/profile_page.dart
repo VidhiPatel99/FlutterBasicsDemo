@@ -333,6 +333,8 @@ class _ProfilePageState extends State<ProfilePage> {
       updateUser().then((val) {
         Fluttertoast.showToast(
             msg: 'User update successfully', gravity: ToastGravity.BOTTOM);
+
+        FocusScope.of(context).requestFocus(FocusNode());//Hide keyboard
       });
     } else {
       setState(() {
