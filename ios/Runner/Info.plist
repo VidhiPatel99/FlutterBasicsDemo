@@ -41,5 +41,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+	<key>NSCameraUsageDescription</key>
+    <string>${PRODUCT_NAME} Access camera</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>${PRODUCT_NAME} Access gallery to pick photo</string>
 </dict>
 </plist>

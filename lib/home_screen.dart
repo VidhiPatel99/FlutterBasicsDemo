@@ -72,7 +72,9 @@ class _HomePageState extends State<HomePage> {
         title: Text(_pageTitle),
         backgroundColor: ColorConstants.colorPrimary,
       ),
-      body: _getDrawerItemWidget(_selectedDrawerIndex),
+      body: SafeArea(
+        child: _getDrawerItemWidget(_selectedDrawerIndex),
+      ),
       drawer: Drawer(
         child: ListView(
           children: <Widget>[

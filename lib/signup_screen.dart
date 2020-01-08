@@ -183,62 +183,64 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     return Scaffold(
-      body: Center(
-        child: Builder(
-          builder: (context) => SingleChildScrollView(
-            child: Container(
-                color: Colors.white,
-                padding: EdgeInsets.all(36.0),
-                child: Form(
-                  key: _formKey,
-                  autovalidate: _autoValidate,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      profilePicField(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      _nameField(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      _emailField(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      _passwordField(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      _confirmPasswordField(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      _cityField(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      _countryField(),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      _genderField(),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      _signUpButton(context),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[text, _loginText(context)],
-                      )
-                    ],
-                  ),
-                )),
+      body: SafeArea(
+        child: Center(
+          child: Builder(
+            builder: (context) => SingleChildScrollView(
+              child: Container(
+                  color: Colors.white,
+                  padding: EdgeInsets.all(36.0),
+                  child: Form(
+                    key: _formKey,
+                    autovalidate: _autoValidate,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        profilePicField(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        _nameField(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        _emailField(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        _passwordField(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        _confirmPasswordField(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        _cityField(),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        _countryField(),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        _genderField(),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        _signUpButton(context),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[text, _loginText(context)],
+                        )
+                      ],
+                    ),
+                  )),
+            ),
           ),
         ),
       ),

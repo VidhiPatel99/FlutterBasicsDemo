@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/models/PhotosResponse.dart';
 import 'package:flutter_demo/models/PostResponse.dart';
 import 'package:flutter_demo/network/APICalls.dart';
+import 'package:flutter_demo/utils/constants/language_constants.dart';
+import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ListingPage extends StatefulWidget {
   @override
@@ -12,6 +15,11 @@ class _ListingPageState extends State<ListingPage> {
   var mPost = new List<Post>();
   Future<List<Post>> postFuture;
   Future<List<Photo>> photoFuture;
+
+  List<Photo> duplicatePhotoList = List();
+  List<Photo> mainPhotoList = List();
+
+  TextEditingController searchTextController = TextEditingController();
 
   @override
   void initState() {
@@ -28,7 +36,46 @@ class _ListingPageState extends State<ListingPage> {
         child: Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
-            child: displayPhotoList(),
+            child: Column(children: [
+              SizedBox(
+                height: 10,
+              ),
+              TextField(
+                style: TextFromFieldTheme.textFieldTextStyle,
+                decoration:
+                    TextFromFieldTheme.textFieldInputDecoration.copyWith(
+                  hintText: LanguageConstants.search,
+                  suffixIcon: GestureDetector(
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.black38,
+                    ),
+                    onTap: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      searchTextController.text = "";
+                      filterSearchResult("");
+                    },
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.black,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black38)),
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black)),
+                ),
+                keyboardType: TextInputType.text,
+                controller: searchTextController,
+                onChanged: (val) {
+                  filterSearchResult(val);
+                },
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              displayPhotoList()
+            ]),
           ),
         ),
       ),
@@ -40,79 +87,80 @@ class _ListingPageState extends State<ListingPage> {
       future: postFuture,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-//                return Text(snapshot.data.title);
-          return ListView.builder(
-            itemCount: snapshot.data.length,
-            itemBuilder: (BuildContext ctxt, int index) {
-              return Dismissible(
-                key: Key(snapshot.data[index].id.toString()),
-                background: Container(color: Colors.red),
-                direction: DismissDirection.horizontal,
-                onDismissed: (direction) {
-                  setState(() {
-                    snapshot.data.removeAt(index);
-                  });
+          return Expanded(
+            child: ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (BuildContext ctxt, int index) {
+                return Dismissible(
+                  key: Key(snapshot.data[index].id.toString()),
+                  background: Container(color: Colors.red),
+                  direction: DismissDirection.horizontal,
+                  onDismissed: (direction) {
+                    setState(() {
+                      snapshot.data.removeAt(index);
+                    });
 
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text('${snapshot.data[index].id} item deleted'),
-                  ));
-                },
-                child: Card(
-                  elevation: 8.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                  margin:
-                      new EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          snapshot.data[index].id.toString(),
-                          style: TextStyle(
-                              fontWeight: FontWeight.w800, fontSize: 18),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data[index].title,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w800, fontSize: 18),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                snapshot.data[index].body,
-                                textAlign: TextAlign.left,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text('${snapshot.data[index].id} item deleted'),
+                    ));
+                  },
+                  child: Card(
+                    elevation: 8.0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                    margin: new EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 8.0),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                            snapshot.data[index].id.toString(),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w800, fontSize: 18),
                           ),
-                        ),
-//                              )
-                      ],
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  snapshot.data[index].title,
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  snapshot.data[index].body,
+                                  textAlign: TextAlign.left,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         } else if (snapshot.hasError) {
           return Text(snapshot.error);
+        } else {
+          return CircularProgressIndicator();
         }
-
-        return CircularProgressIndicator();
       },
     );
   }
@@ -122,78 +170,84 @@ class _ListingPageState extends State<ListingPage> {
       future: photoFuture,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-//                return Text(snapshot.data.title);
-          return ListView.builder(
-            itemCount: snapshot.data.length,
-            itemBuilder: (BuildContext ctxt, int index) {
-              return Dismissible(
-                key: Key(snapshot.data[index].id.toString()),
-                background: Container(color: Colors.red),
-                direction: DismissDirection.horizontal,
-                onDismissed: (direction) {
-                  setState(() {
-                    snapshot.data.removeAt(index);
-                  });
+          duplicatePhotoList.addAll(snapshot.data);
+          mainPhotoList.addAll(snapshot.data);
 
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text('${snapshot.data[index].id} item deleted'),
-                  ));
-                },
-                child: Card(
-                  elevation: 8.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6)),
-                  margin:
-                      new EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                            height: 50,
-                            width: 50,
-                            child: Image.network(snapshot.data[index].url)),
-                        SizedBox(
-                          width: 15,
+          return Expanded(
+            child: Scrollbar(
+              child: ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext ctxt, int index) {
+                  return Dismissible(
+                    key: Key(mainPhotoList[index].id.toString()),
+                    background: Container(color: Colors.red),
+                    direction: DismissDirection.horizontal,
+                    onDismissed: (direction) {
+                      setState(() {
+                        mainPhotoList.removeAt(index);
+                      });
+
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text('${mainPhotoList[index].id} item deleted'),
+                      ));
+                    },
+                    child: Card(
+                      elevation: 8.0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                      margin: new EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 8.0),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                                height: 50,
+                                width: 50,
+                                child: Image.network(mainPhotoList[index].url)),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    mainPhotoList[index].id.toString(),
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 18),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    mainPhotoList[index].title,
+                                    textAlign: TextAlign.left,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data[index].id.toString(),
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w800, fontSize: 18),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                snapshot.data[index].title,
-                                textAlign: TextAlign.left,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-//                              )
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ),
           );
         } else if (snapshot.hasError) {
           return Text(snapshot.error);
+        } else {
+          return Center(child: CircularProgressIndicator());
         }
-
-        return CircularProgressIndicator();
       },
     );
   }
@@ -221,5 +275,29 @@ class _ListingPageState extends State<ListingPage> {
       subtitle: Text(snapshot.data[index].body),
       contentPadding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
     );
+  }
+
+  filterSearchResult(String searchText) {
+    List<Photo> searchMatchList = List();
+
+    if (searchText.isNotEmpty) {
+      duplicatePhotoList.forEach((item) {
+        if (item.title.contains(searchText)) {
+          searchMatchList.add(item);
+        }
+      });
+
+      setState(() {
+        mainPhotoList.clear();
+        mainPhotoList.addAll(searchMatchList);
+      });
+
+      return;
+    } else {
+      setState(() {
+        mainPhotoList.clear();
+        mainPhotoList.addAll(duplicatePhotoList);
+      });
+    }
   }
 }
