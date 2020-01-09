@@ -4,6 +4,7 @@ import 'package:flutter_demo/models/PostResponse.dart';
 import 'package:flutter_demo/network/APICalls.dart';
 import 'package:flutter_demo/utils/constants/language_constants.dart';
 import 'package:flutter_demo/utils/theme/text_form_field_theme.dart';
+import 'package:flutter_widgets/flutter_widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ListingPage extends StatefulWidget {
@@ -20,6 +21,9 @@ class _ListingPageState extends State<ListingPage> {
   List<Photo> mainPhotoList = List();
 
   TextEditingController searchTextController = TextEditingController();
+
+  bool isShowCloseButton = false;
+  ItemScrollController _scrollController = ItemScrollController();
 
   @override
   void initState() {
@@ -45,16 +49,22 @@ class _ListingPageState extends State<ListingPage> {
                 decoration:
                     TextFromFieldTheme.textFieldInputDecoration.copyWith(
                   hintText: LanguageConstants.search,
-                  suffixIcon: GestureDetector(
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.black38,
+                  suffixIcon: Visibility(
+                    visible: isShowCloseButton,
+                    child: GestureDetector(
+                      child: Icon(
+                        Icons.close,
+                        color: Colors.black38,
+                      ),
+                      onTap: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        searchTextController.text = "";
+                        filterSearchResult("");
+                        _scrollController.scrollTo(
+                            index: 0,
+                            duration: Duration(seconds: 1));
+                      },
                     ),
-                    onTap: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      searchTextController.text = "";
-                      filterSearchResult("");
-                    },
                   ),
                   prefixIcon: Icon(
                     Icons.search,
@@ -175,7 +185,8 @@ class _ListingPageState extends State<ListingPage> {
 
           return Expanded(
             child: Scrollbar(
-              child: ListView.builder(
+              child: ScrollablePositionedList.builder(
+                itemScrollController: _scrollController,
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext ctxt, int index) {
                   return Dismissible(
@@ -188,7 +199,8 @@ class _ListingPageState extends State<ListingPage> {
                       });
 
                       Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text('${mainPhotoList[index].id} item deleted'),
+                        content:
+                            Text('${mainPhotoList[index].id} item deleted'),
                       ));
                     },
                     child: Card(
@@ -288,6 +300,7 @@ class _ListingPageState extends State<ListingPage> {
       });
 
       setState(() {
+        isShowCloseButton = true;
         mainPhotoList.clear();
         mainPhotoList.addAll(searchMatchList);
       });
@@ -295,6 +308,7 @@ class _ListingPageState extends State<ListingPage> {
       return;
     } else {
       setState(() {
+        isShowCloseButton = false;
         mainPhotoList.clear();
         mainPhotoList.addAll(duplicatePhotoList);
       });
