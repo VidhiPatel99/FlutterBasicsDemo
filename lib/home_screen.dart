@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: Drawer(
         child: ListView(
+          padding: EdgeInsets.all(0),
           children: <Widget>[
             UserAccountsDrawerHeader(
               accountName: Text(
